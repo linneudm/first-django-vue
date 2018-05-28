@@ -1,0 +1,142 @@
+{% load staticfiles %}
+
+<script type="text/javascript" src="{% static 'js/jquery-3.3.1.slim.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'js/popper.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.5"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/javascript" src="{% static 'js/jquery-cookie.js' %}"></script>
+
+
+  <script type="text/javascript">
+    Vue.http.headers.common['X-CSRFToken'] = "{{ csrf_token }}";
+    var agendas_view = new Vue({
+      el: '#starting',
+      delimiters: ['${','}'],
+      data: {
+        agendas: [],
+        loading: true,
+        currentAgenda: {},
+        message: null,
+        newAgenda: { 'nome': null, 'telefone': null, 'publicado': false},
+        search_term: '',
+
+      },
+      mounted: function() {
+        this.getAgendas();
+      },
+      methods: {
+        getAgendas: function() {
+          let api_url = '/api/agenda/';
+          if(this.search_term!==''||this.search_term!==null) {
+            api_url = `/api/agenda/?search=${this.search_term}`
+          }
+          this.loading = true;
+          this.$http.get(api_url)
+              .then((response) => {
+                this.agendas = response.data;
+                this.loading = false;
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+        },
+        getAgenda: function(id) {
+          this.loading = true;
+          this.$http.get(`/api/agenda/${id}/`)
+              .then((response) => {
+                this.currentAgenda = response.data;
+                $("#editAgendaModal").modal('show');
+                this.loading = false;
+              })
+
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+        },
+        viewAgenda: function(id) {
+          this.loading = true;
+          this.$http.get(`/api/agenda/${id}/`)
+              .then((response) => {
+                this.currentAgenda = response.data;
+                $("#viewAgendaModal").modal('show');
+                this.loading = false;
+              })
+
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+        },
+        addAgenda: function() {
+          this.loading = true;
+          this.$http.post('/api/agenda/',this.newAgenda)
+              .then((response) => {
+                console.log(response)
+                this.loading = true;
+                this.getAgendas();
+              }, response => {
+                  this.loading = false;
+                  $("#addAgendaModal").modal('hide');
+                  if(response.status == 403){
+                    $("#errorContent").text("Acesso!");
+                    $("#errorAgendaModal").modal('show');
+                  }
+              })
+              .catch((err) => {
+                this.loading = true;
+                console.log(err);
+              })
+        },
+        updateAgenda: function() {
+          this.loading = true;
+          this.$http.put(`/api/agenda/${this.currentAgenda.agenda_id}/`, this.currentAgenda)
+              .then((response) => {
+                this.loading = false;
+                this.currentAgenda = response.data;
+                this.getAgendas();
+              }, response => {
+                  this.loading = false;
+                  $("#editAgendaModal").modal('hide');
+                  if(response.status == 403){
+                    $("#error").show();
+                    $("#error-title").text("Erro " + response.status + "!");
+                    $("#error-content").text("Acesso negado.");
+                  }
+              })
+
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+        },
+        deleteAgenda: function(id) {
+          this.loading = true;
+          this.$http.delete(`/api/agenda/${id}/`)
+              .then((response) => {
+                this.loading = false;
+                this.getAgendas();
+              }, response => {
+                  this.loading = false;
+                  if(response.status == 403){
+                    $("#errorContent").text("Você não tem permissão!");
+                    $("#errorAgendaModal").modal('show');
+                  }
+              })
+              .catch((err) => {
+                this.loading = false;
+                console.log(err);
+              })
+        }
+      }
+    });
+
+
+
+
+  </script>
