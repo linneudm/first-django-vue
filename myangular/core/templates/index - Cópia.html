@@ -10,7 +10,7 @@
     Meu Banner
   </div> 
 
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">Navbar</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -69,36 +69,6 @@
 
     <div id="starting">
 
-    <div class="container">
-      <div class="row">
-        <div v-for="agenda in agendas" class="col-md-4 notice-margin">
-          <div class="notice-block">
-            <div class="notice-img">
-              <img src="https://colorlib.com/etc/bona/images/marion-michele-330691.jpg" width="100%">
-            </div>
-            <div class="notice-avatar">
-              <img src="https://colorlib.com/etc/bona/images/averie-woodard-319832.jpg" alt="Profile Image" width="100%">
-            </div>
-            <div class="notice-info">
-              <h4 class="post-title"><a href="#">${agenda.nome}</a> {% if request.user.is_superuser %}<a href="#" v-on:click="getAgenda(agenda.agenda_id)"><i class="material-icons">edit</i></a>{% endif %}</h4>
-              <ul class="post-footer">
-                <li>
-                  <a href="#"><i class="material-icons">person</i> 57</a>
-                </li>
-                <li>
-                  <a href="#"><i class="material-icons">person</i> 57</a>
-                </li>
-                <li>
-                  <a href="#"><i class="material-icons">person</i> 57</a>
-                </li>
-              </ul>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-
       <div class="container">
         <div class="row">
           <h1>List of Articles
@@ -110,6 +80,26 @@
             <button class="btn btn-outline-success my-2 my-sm-0" v-on:click.prevent="getAgendas()">Search</button>
           </div>
 
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Heading</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="agenda in agendas">
+                <th scope="row">${agenda.agenda_id}</th>
+                <td>${agenda.nome}</td>
+                <td>
+                  <button class="btn btn-sm btn-small btn-primary" v-on:click="viewAgenda(agenda.agenda_id)"><i class="material-icons md-15">visibility</i></button>
+                  <button class="btn btn-sm btn-info" v-on:click="getAgenda(agenda.agenda_id)"><i class="material-icons">edit</i></button>
+                  <button class="btn btn-sm btn-danger" v-on:click="deleteAgenda(agenda.agenda_id)"><i class="material-icons">delete</i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
           <!-- Add Article Modal -->
           <div class="modal fade" id="addAgendaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
